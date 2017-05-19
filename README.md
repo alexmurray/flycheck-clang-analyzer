@@ -9,7 +9,8 @@ with [flycheck](http://www.flycheck.org) to automatically check for defects in
 your code on-the-fly.
 
 This package depends on [irony-mode](https://github.com/Sarcasm/irony-mode/) to
-provide the clang configuration so is intended for users of `irony-mode`.
+provide the clang configuration so assumes `irony-mode` is already installed
+and configured.
 
 ## Installation
 
