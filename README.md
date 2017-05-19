@@ -8,6 +8,8 @@ Integrate [Clang Static Analyzer](https://clang-analyzer.llvm.org/)
 with [flycheck](http://www.flycheck.org) to automatically check for defects in
 your code on-the-fly.
 
+![flycheck-clang-analyzer screenshot](screenshots/flycheck-clang-analyzer.png)
+
 This package depends on [irony-mode](https://github.com/Sarcasm/irony-mode/) to
 provide the clang configuration so assumes `irony-mode` is already installed
 and configured.
