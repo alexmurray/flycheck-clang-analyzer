@@ -12,7 +12,9 @@ your code on-the-fly.
 
 This package depends on [irony-mode](https://github.com/Sarcasm/irony-mode/) to
 provide the clang configuration so assumes `irony-mode` is already installed
-and configured.
+and configured, and will automatically chain itself as the next `flycheck`
+checker after [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/) when
+that is installed.
 
 ## Installation
 
@@ -41,7 +43,6 @@ this:
 ```emacs-lisp
 (require 'flycheck-clang-analyzer)
 (flycheck-clang-analyzer-setup)
-(flycheck-add-next-checker 'irony '(warning . clang-analyzer))
 ```
 
 NOTE: This will also require the manual installation of `flycheck` and

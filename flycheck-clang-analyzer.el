@@ -30,14 +30,14 @@
 ;;
 ;; It depends on and leverages `irony-mode' to allow the same clang
 ;; configuration (.clang_complete or compilation database etc.)
+;;
+;; Automatically chains itself as the next checker after `flycheck-irony'.
 
 ;;;; Setup
 
 ;; (with-eval-after-load 'flycheck
 ;;    (require 'flycheck-clang-analyzer)
-;;    (flycheck-clang-analyzer-setup)
-;;    ;; chain after irony
-;;    (flycheck-add-next-checker 'irony '(warning . clang-analyzer)))
+;;    (flycheck-clang-analyzer-setup))
 
 ;;; Code:
 (require 'flycheck)
@@ -82,7 +82,9 @@ See `https://github.com/alexmurray/clang-analyzer/'."
 Add `clang-analyzer' to `flycheck-checkers'."
   (interactive)
   ;; append to list and chain after existing checkers
-  (add-to-list 'flycheck-checkers 'clang-analyzer t))
+  (add-to-list 'flycheck-checkers 'clang-analyzer t)
+  (with-eval-after-load 'flycheck-irony
+    (flycheck-add-next-checker 'irony '(warning . clang-analyzer))))
 
 (provide 'flycheck-clang-analyzer)
 
