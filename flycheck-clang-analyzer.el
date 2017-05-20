@@ -71,7 +71,8 @@ See `https://github.com/alexmurray/clang-analyzer/'."
   :error-patterns ((warning line-start (file-name) ":" line ":" column ": warning: "
                             (message (one-or-more not-newline)
                                      (zero-or-more "\n"
-                                                   (one-or-more not-newline)))
+                                                   (one-or-more space)
+						   (one-or-more not-newline)))
                             line-end))
   :modes (c-mode c++-mode objc-mode))
 
