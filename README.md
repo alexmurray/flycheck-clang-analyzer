@@ -10,11 +10,16 @@ your code on-the-fly.
 
 ![flycheck-clang-analyzer screenshot](screenshots/flycheck-clang-analyzer.png)
 
-This package depends on [irony-mode](https://github.com/Sarcasm/irony-mode/) to
-provide the clang configuration so assumes `irony-mode` is already installed
-and configured, and will automatically chain itself as the next `flycheck`
-checker after [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/) when
-that is installed.
+This package depends on
+either [irony-mode](https://github.com/Sarcasm/irony-mode/)
+or [rtags](https://github.com/Andersbakken/rtags) to provide the clang
+configuration - and so requires zero extra setup. This checker also
+automatically chain itself as the next `flycheck` checker after
+both [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/)
+and [flycheck-rtags](https://github.com/Andersbakken/rtags) so that it only
+runs when the corresponding backend checker returns without warnings. This
+avoids trying to perform the analysis when there are syntactic errors in the
+current buffer.
 
 ## Installation
 
@@ -29,9 +34,7 @@ To enable then simply add the following to your init file:
 ```emacs-lisp
 (with-eval-after-load 'flycheck
   (require 'flycheck-clang-analyzer)
-  (flycheck-clang-analyzer-setup)
-  ;; chain after flycheck-irony in flycheck
-  (flycheck-add-next-checker 'irony '(warning . clang-analyzer)))
+  (flycheck-clang-analyzer-setup))
 ```
 
 ### Manual
