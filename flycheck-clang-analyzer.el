@@ -52,8 +52,13 @@
 (defun flycheck-clang-analyzer--backend ()
   "Get current backend which is active."
   (cond
-   ((and (fboundp 'irony-mode) irony-mode) 'irony)
-   ((and (boundp 'rtags-rdm-process) (processp rtags-rdm-process)) 'rtags)))
+   ((and (fboundp 'irony-mode) irony-mode)
+    'irony)
+   ((and (boundp 'rtags-enabled)
+	 rtags-enabled
+	 (boundp 'rtags-rdm-process)
+	 (processp rtags-rdm-process))
+    'rtags)))
 
 (defun flycheck-clang-analyzer--get-compile-options ()
   "Get compile options for clang from irony."
