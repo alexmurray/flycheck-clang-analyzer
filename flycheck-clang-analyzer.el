@@ -57,11 +57,12 @@
 
 See `https://github.com/alexmurray/clang-analyzer/'."
   :command ("clang"
+	    "--analyze"
+	    (eval (flycheck-clang-analyzer--get-compile-options))
+	    ;; disable after compdb options to ensure stay disabled
 	    "-fno-color-diagnostics" ; don't include color in output
 	    "-fno-caret-diagnostics" ; don't indicate location in output
 	    "-fno-diagnostics-show-option" ; don't show warning group
-	    "--analyze"
-	    (eval (flycheck-clang-analyzer--get-compile-options))
             source-inplace)
   :predicate (lambda () (irony-mode))
   :working-directory flycheck-clang-analyzer--get-default-directory
