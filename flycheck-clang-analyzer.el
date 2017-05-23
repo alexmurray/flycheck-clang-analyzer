@@ -54,8 +54,8 @@
     'irony)
    ((and (boundp 'rtags-enabled)
 	 rtags-enabled
-	 (boundp 'rtags-rdm-process)
-	 (processp rtags-rdm-process))
+	 (fboundp 'rtags-is-running)
+	 (rtags-is-running))
     'rtags)))
 
 (defun flycheck-clang-analyzer--get-compile-options ()
