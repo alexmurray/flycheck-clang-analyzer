@@ -1,4 +1,4 @@
-# Flycheck Clang Analyzer Checker
+# Flycheck Clang Static Analyzer (scan-build) Checker
 
 [![License GPL 3](https://img.shields.io/badge/license-GPL_3-green.svg)](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![MELPA](http://melpa.org/packages/flycheck-clang-analyzer-badge.svg)](http://melpa.org/#/flycheck-clang-analyzer)
@@ -6,7 +6,7 @@
 
 Integrate [Clang Static Analyzer](https://clang-analyzer.llvm.org/)
 (aka. scan-build) with [flycheck](http://www.flycheck.org) to automatically
-check for defects in your code on-the-fly.
+perform on-the-fly static analysis *as you code*.
 
 ![flycheck-clang-analyzer screenshot](screenshots/flycheck-clang-analyzer.png)
 
@@ -36,19 +36,28 @@ To enable then simply add the following to your init file:
   (flycheck-clang-analyzer-setup))
 ```
 
+We recommend to use [use-package](https://github.com/jwiegley/use-package) to
+make this automatic:
+
+```emacs-lisp
+(use-package flycheck-clang-analyzer
+  :ensure t
+  :config (add-hook 'flycheck-mode-hook #'flycheck-clang-analyzer-setup))
+```
+
 ### Manual
 
 If you would like to install the package manually, download or clone it and
-place within Emacs' `load-path`, then you can require it in your init file like
-this:
+place it within Emacs' `load-path`, then you can require it in your init file
+like this:
 
 ```emacs-lisp
 (require 'flycheck-clang-analyzer)
 (flycheck-clang-analyzer-setup)
 ```
 
-NOTE: This will also require the manual installation of `flycheck` and
-`irony-mode` if you have not done so already.
+NOTE: This will also require the manual installation of `flycheck` if you have
+not done so already.
 
 ## License
 
