@@ -5,4 +5,5 @@
 
 (development
  (depends-on "flycheck")
- (depends-on "irony"))
+ (depends-on "irony")
+ (depends-on "rtags"))

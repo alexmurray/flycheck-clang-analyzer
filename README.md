@@ -5,16 +5,20 @@
 [![Build Status](https://travis-ci.org/alexmurray/flycheck-clang-analyzer.svg?branch=master)](https://travis-ci.org/alexmurray/flycheck-clang-analyzer)
 
 Integrate [Clang Static Analyzer](https://clang-analyzer.llvm.org/)
-with [flycheck](http://www.flycheck.org) to automatically check for defects in
-your code on-the-fly.
+(aka. scan-build) with [flycheck](http://www.flycheck.org) to automatically
+check for defects in your code on-the-fly.
 
 ![flycheck-clang-analyzer screenshot](screenshots/flycheck-clang-analyzer.png)
 
-This package depends on [irony-mode](https://github.com/Sarcasm/irony-mode/) to
-provide the clang configuration so assumes `irony-mode` is already installed
-and configured, and will automatically chain itself as the next `flycheck`
-checker after [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/) when
-that is installed.
+This package depends on
+either [irony-mode](https://github.com/Sarcasm/irony-mode/)
+or [rtags](https://github.com/Andersbakken/rtags) to provide the appropriate
+compiler flags for clang - and so requires zero extra setup. This checker also
+automatically chains itself as the next `flycheck` checker after
+both [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/)
+and [flycheck-rtags](https://github.com/Andersbakken/rtags) so that it only
+runs when the corresponding previous checker returns without warnings. This
+avoids trying to perform the analysis when there are syntactic errors etc.
 
 ## Installation
 
@@ -29,9 +33,7 @@ To enable then simply add the following to your init file:
 ```emacs-lisp
 (with-eval-after-load 'flycheck
   (require 'flycheck-clang-analyzer)
-  (flycheck-clang-analyzer-setup)
-  ;; chain after flycheck-irony in flycheck
-  (flycheck-add-next-checker 'irony '(warning . clang-analyzer)))
+  (flycheck-clang-analyzer-setup))
 ```
 
 ### Manual
