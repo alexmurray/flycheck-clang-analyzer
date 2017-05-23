@@ -45,9 +45,7 @@
 (require 'flycheck)
 (require 'irony nil t)
 (require 'irony-cdb nil t)
-(require 'flycheck-irony nil t)
 (require 'rtags nil t)
-(require 'flycheck-rtags nil t)
 
 (defun flycheck-clang-analyzer--backend ()
   "Get current backend which is active."
