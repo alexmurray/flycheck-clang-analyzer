@@ -48,16 +48,43 @@
 (require 'irony-cdb nil t)
 (require 'rtags nil t)
 
+(defvar flycheck-clang-analyzer--backends
+  '(((:name . irony)
+     (:active . flycheck-clang-analyzer--irony-active)
+     (:get-compile-options . flycheck-clang-analyzer--irony-get-compile-options)
+     (:get-default-directory . flycheck-clang-analyzer--irony-get-default-directory))
+    ((:name . rtags)
+     (:active . flycheck-clang-analyzer--rtags-active)
+     (:get-compile-options . flycheck-clang-analyzer--rtags-get-compile-options)
+     (:get-default-directory . flycheck-clang-analyzer--rtags-get-default-directory))))
+
 (defun flycheck-clang-analyzer--backend ()
   "Get current backend which is active."
-  (cond
-   ((and (fboundp 'irony-mode) irony-mode)
-    'irony)
-   ((and (boundp 'rtags-enabled)
-	 rtags-enabled
-	 (fboundp 'rtags-is-running)
-	 (rtags-is-running))
-    'rtags)))
+  (car (cl-remove-if-not (lambda (backend) (funcall (cdr (assoc :active backend))))
+			 flycheck-clang-analyzer--backends)))
+
+;; irony
+(defun flycheck-clang-analyzer--irony-active ()
+  "Check if irony-mode is available and active."
+  (and (fboundp 'irony-mode) irony-mode))
+
+(defun flycheck-clang-analyzer--irony-get-compile-options ()
+  "Get compile options from irony."
+  (if (fboundp 'irony-cdb--autodetect-compile-options)
+      (nth 1 (irony-cdb--autodetect-compile-options))))
+
+(defun flycheck-clang-analyzer--irony-get-default-directory ()
+  "Get default directory from irony."
+  (if (fboundp 'irony-cdb--autodetect-compile-options)
+      (nth 2 (irony-cdb--autodetect-compile-options))))
+
+;; rtags
+(defun flycheck-clang-analyzer--rtags-active ()
+  "Check if rtags is available and active."
+  (and (boundp 'rtags-enabled)
+       rtags-enabled
+       (fboundp 'rtags-is-running)
+       (rtags-is-running)))
 
 (defun flycheck-clang-analyzer--valid-compilation-flag-p (flag)
   "Check whether FLAG is a valid compilation flag for clang --analyze."
@@ -65,23 +92,39 @@
 	   (string= flag "-o")
 	   (string= (substring flag 0 1) "/"))))
 
+(defun flycheck-clang-analyzer--rtags-get-compile-options ()
+  "Get compile options from rtags."
+  (if (fboundp 'rtags-compilation-flags)
+      (cl-remove-if-not #'flycheck-clang-analyzer--valid-compilation-flag-p
+			(rtags-compilation-flags))))
+
+(defun flycheck-clang-analyzer--rtags-get-default-directory ()
+  "Get default directory from rtags."
+  (if (boundp 'rtags-current-project)
+      rtags-current-project))
+
+
 (defun flycheck-clang-analyzer--get-compile-options ()
-  "Get compile options for clang from irony."
-  (pcase (flycheck-clang-analyzer--backend)
-    ('irony (if (fboundp 'irony-cdb--autodetect-compile-options)
-		(nth 1 (irony-cdb--autodetect-compile-options))))
-    ('rtags (if (fboundp 'rtags-compilation-flags)
-		(cl-remove-if-not #'flycheck-clang-analyzer--valid-compilation-flag-p
-				  (rtags-compilation-flags))))))
+  "Get compile options for clang."
+  (let ((backend (flycheck-clang-analyzer--backend)))
+    (when backend
+      (funcall (cdr (assoc :get-compile-options backend))))))
 
 (defun flycheck-clang-analyzer--get-default-directory (_checker)
-  "Get default directory for flycheck from irony."
-  (pcase (flycheck-clang-analyzer--backend)
-    ('irony (if (fboundp 'irony-cdb--autodetect-compile-options)
-		(nth 2 (irony-cdb--autodetect-compile-options))))
-    ('rtags (if (boundp 'rtags-current-project)
-		rtags-current-project))
-    (_ default-directory)))
+  "Get default directory for clang."
+  (let ((backend (flycheck-clang-analyzer--backend)))
+    (when backend
+      (funcall (cdr (assoc :get-default-directory backend))))))
+
+(defun flycheck-clang-analyzer--verify (_checker)
+  "Verify CHECKER."
+  (let ((backend (flycheck-clang-analyzer--backend)))
+    (list
+     (flycheck-verification-result-new
+      :label "Backend"
+      :message (format "%s" (if backend (cdr (assoc :name backend))
+			      "No active supported backend."))
+      :face (if backend 'success '(bold error))))))
 
 (flycheck-define-checker clang-analyzer
   "A checker using clang-analyzer.
@@ -95,15 +138,9 @@ See `https://github.com/alexmurray/clang-analyzer/'."
 	    "-fno-caret-diagnostics" ; don't indicate location in output
 	    "-fno-diagnostics-show-option" ; don't show warning group
             source-inplace)
-  :predicate (lambda () (flycheck-clang-analyzer--backend))
+  :predicate flycheck-clang-analyzer--backend
   :working-directory flycheck-clang-analyzer--get-default-directory
-  :verify (lambda (_)
-	    (let ((backend (flycheck-clang-analyzer--backend)))
-	      (list
-	       (flycheck-verification-result-new
-		:label "Backend"
-		:message (format "%s" (if backend backend "No active supported backend."))
-		:face (if backend 'success '(bold error))))))
+  :verify flycheck-clang-analyzer--verify
   :error-patterns ((warning line-start (file-name) ":" line ":" column ": warning: "
                             (message (one-or-more not-newline)
                                      (zero-or-more "\n"
