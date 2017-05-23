@@ -44,9 +44,6 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'flycheck)
-(require 'irony nil t)
-(require 'irony-cdb nil t)
-(require 'rtags nil t)
 
 (defvar flycheck-clang-analyzer--backends
   '(((:name . irony)
