@@ -42,6 +42,7 @@
 ;;    (flycheck-clang-analyzer-setup))
 
 ;;; Code:
+(require 'cl-lib)
 (require 'flycheck)
 (require 'irony nil t)
 (require 'irony-cdb nil t)
@@ -58,13 +59,21 @@
 	 (rtags-is-running))
     'rtags)))
 
+(defun flycheck-clang-analyzer--valid-compilation-flag-p (flag)
+  "Check whether FLAG is a valid compilation flag for clang --analyze."
+  (not (or (executable-find flag)
+	   (string= flag "-o")
+	   (string= (substring flag 0 1) "/"))))
+
 (defun flycheck-clang-analyzer--get-compile-options ()
   "Get compile options for clang from irony."
   (pcase (flycheck-clang-analyzer--backend)
     ('irony (if (fboundp 'irony-cdb--autodetect-compile-options)
 		(nth 1 (irony-cdb--autodetect-compile-options))))
     ('rtags (if (fboundp 'rtags-compilation-flags)
-		(rtags-compilation-flags)))))
+		(cl-remove-if-not #'flycheck-clang-analyzer--valid-compilation-flag-p
+				  (rtags-compilation-flags))))))
+
 (defun flycheck-clang-analyzer--get-default-directory (_checker)
   "Get default directory for flycheck from irony."
   (pcase (flycheck-clang-analyzer--backend)
