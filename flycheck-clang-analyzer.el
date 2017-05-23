@@ -158,9 +158,9 @@ Add `clang-analyzer' to `flycheck-checkers'."
   ;; append to list and chain after existing checkers
   (add-to-list 'flycheck-checkers 'clang-analyzer t)
   (with-eval-after-load 'flycheck-irony
-    (dolist (checker '(irony rtags))
-      (when (flycheck-valid-checker-p checker)
-	(flycheck-add-next-checker checker '(warning . clang-analyzer))))))
+    (flycheck-add-next-checker irony '(warning . clang-analyzer)))
+  (with-eval-after-load 'flycheck-rtags
+    (flycheck-add-next-checker rtags '(warning . clang-analyzer))))
 
 (provide 'flycheck-clang-analyzer)
 
