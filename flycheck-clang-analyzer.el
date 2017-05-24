@@ -85,9 +85,9 @@
 
 (defun flycheck-clang-analyzer--valid-compilation-flag-p (flag)
   "Check whether FLAG is a valid compilation flag for clang --analyze."
-  (not (or (executable-find flag)
-	   (string= flag "-o")
-	   (string= (substring flag 0 1) "/"))))
+  (and (string= (substring flag 0 1) "-")
+       (not (string= flag "-o"))
+       (not (string= flag "-c"))))
 
 (defun flycheck-clang-analyzer--rtags-get-compile-options ()
   "Get compile options from rtags."
