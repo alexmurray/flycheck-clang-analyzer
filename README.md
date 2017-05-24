@@ -42,7 +42,8 @@ make this automatic:
 ```emacs-lisp
 (use-package flycheck-clang-analyzer
   :ensure t
-  :config (add-hook 'flycheck-mode-hook #'flycheck-clang-analyzer-setup))
+  :after flycheck
+  :config (flycheck-clang-analyzer-setup))
 ```
 
 ### Manual
