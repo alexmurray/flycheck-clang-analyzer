@@ -10,12 +10,12 @@ perform on-the-fly static analysis *as you code*.
 
 ![flycheck-clang-analyzer screenshot](screenshots/flycheck-clang-analyzer.png)
 
-This package depends on
-either [irony-mode](https://github.com/Sarcasm/irony-mode/)
+This package leverages the configuration of the existing `c/c++-clang` flycheck
+checker, or either [irony-mode](https://github.com/Sarcasm/irony-mode/)
 or [rtags](https://github.com/Andersbakken/rtags) to provide the appropriate
 compiler flags for clang - and so requires zero extra setup. This checker also
 automatically chains itself as the next `flycheck` checker after
-both [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/)
+`c/c++-clang`, [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/)
 and [flycheck-rtags](https://github.com/Andersbakken/rtags) so that it only
 runs when the corresponding previous checker returns without warnings. This
 avoids trying to perform the analysis when there are syntactic errors etc.

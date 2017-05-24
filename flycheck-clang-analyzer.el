@@ -28,12 +28,12 @@
 ;; This packages integrates the Clang Analyzer `clang --analyze` tool with
 ;; flycheck to automatically detect any new defects in your code on the fly.
 ;;
-;; It depends on and leverages either `irony-mode' or `rtags' to provide
-;; compilation arguments etc and so provides automatic static analysis with
-;; zero setup.
+;; It depends on and leverages either the existing c/c++-clang flycheck
+;; backend, or `irony-mode' or `rtags' to provide compilation arguments etc and
+;; so provides automatic static analysis with zero setup.
 ;;
-;; Automatically chains itself as the next checker after `flycheck-irony' and
-;; `flycheck-rtags'.
+;; Automatically chains itself as the next checker after c/c++-clang, irony and
+;; rtags flycheck checkers.
 
 ;;;; Setup
 
@@ -53,7 +53,11 @@
     ((:name . rtags)
      (:active . flycheck-clang-analyzer--rtags-active)
      (:get-compile-options . flycheck-clang-analyzer--rtags-get-compile-options)
-     (:get-default-directory . flycheck-clang-analyzer--rtags-get-default-directory))))
+     (:get-default-directory . flycheck-clang-analyzer--rtags-get-default-directory))
+    ((:name . flycheck-clang)
+     (:active . flycheck-clang-analyzer--flycheck-clang-active)
+     (:get-compile-options . flycheck-clang-analyzer--flycheck-clang-get-compile-options)
+     (:get-default-directory . flycheck-clang-analyzer--flycheck-clang-get-default-directory))))
 
 (defun flycheck-clang-analyzer--backend ()
   "Get current backend which is active."
@@ -100,6 +104,27 @@
   (if (boundp 'rtags-current-project)
       rtags-current-project))
 
+;; flycheck-clang
+(defun flycheck-clang-analyzer--flycheck-clang-active ()
+  "Get active from flycheck-clang."
+  t)
+
+(defun flycheck-clang-analyzer--flycheck-clang-get-default-directory ()
+  "Get default directory from flycheck-clang."
+  default-directory)
+
+(defun flycheck-clang-analyzer--flycheck-clang-get-compile-options ()
+  "Get compile options from flycheck clang backend."
+  (append (when flycheck-clang-language-standard (list (concat "-std=" flycheck-clang-language-standard)))
+	  (when flycheck-clang-standard-library (list (concat "-stdlib=" flycheck-clang-standard-library)))
+	  (when flycheck-clang-ms-extensions (list "-fms-extensions"))
+	  (when flycheck-clang-no-exceptions (list "-fno-exceptions"))
+	  (when flycheck-clang-no-rtti (list "-fno-rtti"))
+	  (when flycheck-clang-blocks (list "-fblocks"))
+	  (apply #'append (mapcar (lambda (i) (list "-include" i)) flycheck-clang-includes))
+	  (mapcar (lambda (i) (concat "-D" i)) flycheck-clang-definitions)
+	  (apply #'append (mapcar (lambda (i) (list "-I" i)) flycheck-clang-include-path))
+	  flycheck-clang-args))
 
 (defun flycheck-clang-analyzer--get-compile-options ()
   "Get compile options for clang."
@@ -164,7 +189,9 @@ Add `clang-analyzer' to `flycheck-checkers'."
   (with-eval-after-load 'flycheck-irony
     (flycheck-add-next-checker 'irony '(warning . clang-analyzer)))
   (with-eval-after-load 'flycheck-rtags
-    (flycheck-add-next-checker 'rtags '(warning . clang-analyzer))))
+    (flycheck-add-next-checker 'rtags '(warning . clang-analyzer)))
+  (with-eval-after-load 'flycheck
+    (flycheck-add-next-checker 'c/c++-clang '(warning . clang-analyzer))))
 
 (provide 'flycheck-clang-analyzer)
 
