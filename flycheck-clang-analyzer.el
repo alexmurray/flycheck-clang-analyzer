@@ -138,12 +138,19 @@ See `https://github.com/alexmurray/clang-analyzer/'."
   :predicate flycheck-clang-analyzer--backend
   :working-directory flycheck-clang-analyzer--get-default-directory
   :verify flycheck-clang-analyzer--verify
-  :error-patterns ((warning line-start (file-name) ":" line ":" column ": warning: "
-                            (message (one-or-more not-newline)
-                                     (zero-or-more "\n"
-                                                   (one-or-more space)
-						   (one-or-more not-newline)))
+  :error-patterns ((warning line-start (file-name) ":" line ":" column
+			    ": warning: " (optional (message))
                             line-end))
+  :error-filter
+  (lambda (errors)
+    (let ((errors (flycheck-sanitize-errors errors)))
+      (dolist (err errors)
+        ;; Clang will output empty messages for #error/#warning pragmas without
+        ;; messages.  We fill these empty errors with a dummy message to get
+        ;; them past our error filtering
+        (setf (flycheck-error-message err)
+              (or (flycheck-error-message err) "no message")))
+      (flycheck-fold-include-levels errors "In file included from")))
   :modes (c-mode c++-mode objc-mode))
 
 ;;;###autoload
