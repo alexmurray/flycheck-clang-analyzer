@@ -66,7 +66,7 @@
 
 ;; irony
 (defun flycheck-clang-analyzer--irony-active ()
-  "Check if irony-mode is available and active."
+  "Check if 'irony-mode' is available and active."
   (and (fboundp 'irony-mode) irony-mode))
 
 (defun flycheck-clang-analyzer--irony-get-compile-options ()
