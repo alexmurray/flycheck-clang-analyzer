@@ -62,7 +62,7 @@
 (defun flycheck-clang-analyzer--backend ()
   "Get current backend which is active."
   (car (cl-remove-if-not (lambda (backend) (funcall (cdr (assoc :active backend))))
-			 flycheck-clang-analyzer--backends)))
+                         flycheck-clang-analyzer--backends)))
 
 ;; irony
 (defun flycheck-clang-analyzer--irony-active ()
@@ -97,7 +97,7 @@
   "Get compile options from rtags."
   (if (fboundp 'rtags-compilation-flags)
       (cl-remove-if-not #'flycheck-clang-analyzer--valid-compilation-flag-p
-			(rtags-compilation-flags))))
+                        (rtags-compilation-flags))))
 
 (defun flycheck-clang-analyzer--rtags-get-default-directory ()
   "Get default directory from rtags."
@@ -116,15 +116,15 @@
 (defun flycheck-clang-analyzer--flycheck-clang-get-compile-options ()
   "Get compile options from flycheck clang backend."
   (append (when flycheck-clang-language-standard (list (concat "-std=" flycheck-clang-language-standard)))
-	  (when flycheck-clang-standard-library (list (concat "-stdlib=" flycheck-clang-standard-library)))
-	  (when flycheck-clang-ms-extensions (list "-fms-extensions"))
-	  (when flycheck-clang-no-exceptions (list "-fno-exceptions"))
-	  (when flycheck-clang-no-rtti (list "-fno-rtti"))
-	  (when flycheck-clang-blocks (list "-fblocks"))
-	  (apply #'append (mapcar (lambda (i) (list "-include" i)) flycheck-clang-includes))
-	  (mapcar (lambda (i) (concat "-D" i)) flycheck-clang-definitions)
-	  (apply #'append (mapcar (lambda (i) (list "-I" i)) flycheck-clang-include-path))
-	  flycheck-clang-args))
+          (when flycheck-clang-standard-library (list (concat "-stdlib=" flycheck-clang-standard-library)))
+          (when flycheck-clang-ms-extensions (list "-fms-extensions"))
+          (when flycheck-clang-no-exceptions (list "-fno-exceptions"))
+          (when flycheck-clang-no-rtti (list "-fno-rtti"))
+          (when flycheck-clang-blocks (list "-fblocks"))
+          (apply #'append (mapcar (lambda (i) (list "-include" i)) flycheck-clang-includes))
+          (mapcar (lambda (i) (concat "-D" i)) flycheck-clang-definitions)
+          (apply #'append (mapcar (lambda (i) (list "-I" i)) flycheck-clang-include-path))
+          flycheck-clang-args))
 
 (defun flycheck-clang-analyzer--get-compile-options ()
   "Get compile options for clang."
@@ -145,7 +145,7 @@
      (flycheck-verification-result-new
       :label "Backend"
       :message (format "%s" (if backend (cdr (assoc :name backend))
-			      "No active supported backend."))
+                              "No active supported backend."))
       :face (if backend 'success '(bold error))))))
 
 (flycheck-define-checker clang-analyzer
@@ -153,18 +153,18 @@
 
 See `https://github.com/alexmurray/clang-analyzer/'."
   :command ("clang"
-	    "--analyze"
-	    (eval (flycheck-clang-analyzer--get-compile-options))
-	    ;; disable after compdb options to ensure stay disabled
-	    "-fno-color-diagnostics" ; don't include color in output
-	    "-fno-caret-diagnostics" ; don't indicate location in output
-	    "-fno-diagnostics-show-option" ; don't show warning group
+            "--analyze"
+            (eval (flycheck-clang-analyzer--get-compile-options))
+            ;; disable after compdb options to ensure stay disabled
+            "-fno-color-diagnostics" ; don't include color in output
+            "-fno-caret-diagnostics" ; don't indicate location in output
+            "-fno-diagnostics-show-option" ; don't show warning group
             source-inplace)
   :predicate flycheck-clang-analyzer--backend
   :working-directory flycheck-clang-analyzer--get-default-directory
   :verify flycheck-clang-analyzer--verify
   :error-patterns ((warning line-start (file-name) ":" line ":" column
-			    ": warning: " (optional (message))
+                            ": warning: " (optional (message))
                             line-end))
   :error-filter
   (lambda (errors)
