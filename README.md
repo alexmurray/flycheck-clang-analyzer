@@ -60,6 +60,21 @@ like this:
 NOTE: This will also require the manual installation of `flycheck` if you have
 not done so already.
 
+## Configuration
+
+This should work with zero configuration, since we try and leverage the
+configuration of existing clang-based Flycheck checkers.
+
+The only configuration option is `flycheck-clang-analyzer-executable` which is
+the path to the clang executable - this defaults to `clang`. However if you
+need to change this to something else, simply `setq` it as appropriate before
+calling `(flycheck-clang-analyzer-setup)` - so to set to use `clang-3.8`
+instead of `clang`:
+
+```emacs-lisp
+(setq flycheck-clang-analyzer-executable "clang-3.8")
+(flycheck-clang-analyzer-setup)
+```
 ## License
 
 Copyright © 2017 Alex Murray
