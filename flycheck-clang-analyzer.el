@@ -5,7 +5,7 @@
 ;; Author: Alex Murray <murray.alex@gmail.com>
 ;; Maintainer: Alex Murray <murray.alex@gmail.com>
 ;; URL: https://github.com/alexmurray/flycheck-clang-analyzer
-;; Version: 0.1
+;; Version: 0.2
 ;; Package-Requires: ((flycheck "0.24") (emacs "24.4"))
 
 ;; This file is not part of GNU Emacs.
@@ -159,6 +159,7 @@ See `https://github.com/alexmurray/clang-analyzer/'."
             "-fno-color-diagnostics" ; don't include color in output
             "-fno-caret-diagnostics" ; don't indicate location in output
             "-fno-diagnostics-show-option" ; don't show warning group
+            "-Xanalyzer" "-analyzer-output=text"
             source-inplace)
   :predicate flycheck-clang-analyzer--backend
   :working-directory flycheck-clang-analyzer--get-default-directory
