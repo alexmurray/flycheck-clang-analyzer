@@ -5,7 +5,7 @@
 ;; Author: Alex Murray <murray.alex@gmail.com>
 ;; Maintainer: Alex Murray <murray.alex@gmail.com>
 ;; URL: https://github.com/alexmurray/flycheck-clang-analyzer
-;; Version: 0.2
+;; Version: 0.3
 ;; Package-Requires: ((flycheck "0.24") (emacs "24.4"))
 
 ;; This file is not part of GNU Emacs.
@@ -63,6 +63,18 @@
   "Get current backend which is active."
   (car (cl-remove-if-not (lambda (backend) (funcall (cdr (assoc :active backend))))
                          flycheck-clang-analyzer--backends)))
+
+(defun flycheck-clang-analyzer--buffer-is-header ()
+  "Determine if current buffer is a header file."
+  (when (buffer-file-name)
+    (let ((extension (file-name-extension (buffer-file-name))))
+      ;; capture .h, .hpp, .hxx etc - all start with h
+      (string-equal "h" (substring extension 0 1)))))
+
+(defun flycheck-clang-analyzer--predicate ()
+  "Return t when should be active, nil if not."
+  (and (not (flycheck-clang-analyzer--buffer-is-header))
+       (flycheck-clang-analyzer--backend)))
 
 ;; irony
 (defun flycheck-clang-analyzer--irony-active ()
@@ -161,7 +173,7 @@ See `https://github.com/alexmurray/clang-analyzer/'."
             "-fno-diagnostics-show-option" ; don't show warning group
             "-Xanalyzer" "-analyzer-output=text"
             source-inplace)
-  :predicate flycheck-clang-analyzer--backend
+  :predicate flycheck-clang-analyzer--predicate
   :working-directory flycheck-clang-analyzer--get-default-directory
   :verify flycheck-clang-analyzer--verify
   :error-patterns ((warning line-start (file-name) ":" line ":" column
