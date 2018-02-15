@@ -29,11 +29,11 @@
 ;; flycheck to automatically detect any new defects in your code on the fly.
 ;;
 ;; It depends on and leverages either the existing c/c++-clang flycheck
-;; backend, or `irony-mode' or `rtags' to provide compilation arguments etc and
-;; so provides automatic static analysis with zero setup.
+;; backend, or `emacs-cquery' `irony-mode' or `rtags' to provide compilation
+;; arguments etc and so provides automatic static analysis with zero setup.
 ;;
-;; Automatically chains itself as the next checker after c/c++-clang, irony and
-;; rtags flycheck checkers.
+;; Automatically chains itself as the next checker after c/c++-clang, lsp-ui,
+;; irony and rtags flycheck checkers.
 
 ;;;; Setup
 
@@ -46,7 +46,11 @@
 (require 'flycheck)
 
 (defvar flycheck-clang-analyzer--backends
-  '(((:name . irony)
+  '(((:name . cquery)
+     (:active . flycheck-clang-analyzer--cquery-active)
+     (:get-compile-options . flycheck-clang-analyzer--cquery-get-compile-options)
+     (:get-default-directory . flycheck-clang-analyzer--cquery-get-default-directory))
+    ((:name . irony)
      (:active . flycheck-clang-analyzer--irony-active)
      (:get-compile-options . flycheck-clang-analyzer--irony-get-compile-options)
      (:get-default-directory . flycheck-clang-analyzer--irony-get-default-directory))
@@ -75,6 +79,21 @@
   "Return t when should be active, nil if not."
   (and (not (flycheck-clang-analyzer--buffer-is-header))
        (flycheck-clang-analyzer--backend)))
+
+;; cquery
+(defun flycheck-clang-analyzer--cquery-active ()
+  "Check if 'cquery-mode' is available and active."
+  (and (fboundp 'cquery--is-cquery-buffer) (cquery--is-cquery-buffer)))
+
+(defun flycheck-clang-analyzer--cquery-get-compile-options ()
+  "Get compile options from cquery."
+  (if (fboundp 'cquery-file-info)
+      (rest (gethash "args" (cquery-file-info)))))
+
+(defun flycheck-clang-analyzer--cquery-get-default-directory ()
+  "Get default directory from cquery."
+  (if (fboundp 'cquery--get-root)
+      (cquery--get-root)))
 
 ;; irony
 (defun flycheck-clang-analyzer--irony-active ()
@@ -199,6 +218,8 @@ Add `clang-analyzer' to `flycheck-checkers'."
   (interactive)
   ;; append to list and chain after existing checkers
   (add-to-list 'flycheck-checkers 'clang-analyzer t)
+  (with-eval-after-load 'lsp-ui-flycheck
+    (flycheck-add-next-checker 'lsp-ui '(warning . clang-analyzer)))
   (with-eval-after-load 'flycheck-irony
     (flycheck-add-next-checker 'irony '(warning . clang-analyzer)))
   (with-eval-after-load 'flycheck-rtags
