@@ -88,7 +88,7 @@
 (defun flycheck-clang-analyzer--cquery-get-compile-options ()
   "Get compile options from cquery."
   (if (fboundp 'cquery-file-info)
-      (rest (gethash "args" (cquery-file-info)))))
+      (cl-rest (gethash "args" (cquery-file-info)))))
 
 (defun flycheck-clang-analyzer--cquery-get-default-directory ()
   "Get default directory from cquery."
