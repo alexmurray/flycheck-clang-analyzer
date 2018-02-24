@@ -195,9 +195,12 @@ See `https://github.com/alexmurray/clang-analyzer/'."
   :predicate flycheck-clang-analyzer--predicate
   :working-directory flycheck-clang-analyzer--get-default-directory
   :verify flycheck-clang-analyzer--verify
-  :error-patterns ((warning line-start (file-name) ":" line ":" column
-                            ": warning: " (optional (message))
+  :error-patterns ((info line-start (file-name) ":" line ":" column
+                            ": note: " (optional (message))
                             line-end)
+		   (warning line-start (file-name) ":" line ":" column
+			    ": warning: " (optional (message))
+			    line-end)
 		   (error line-start (file-name) ":" line ":" column
 			  ": error: " (optional (message))
 			  line-end))
