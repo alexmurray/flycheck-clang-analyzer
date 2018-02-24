@@ -197,7 +197,10 @@ See `https://github.com/alexmurray/clang-analyzer/'."
   :verify flycheck-clang-analyzer--verify
   :error-patterns ((warning line-start (file-name) ":" line ":" column
                             ": warning: " (optional (message))
-                            line-end))
+                            line-end)
+		   (error line-start (file-name) ":" line ":" column
+			  ": error: " (optional (message))
+			  line-end))
   :error-filter
   (lambda (errors)
     (let ((errors (flycheck-sanitize-errors errors)))
