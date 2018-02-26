@@ -203,12 +203,12 @@ See `https://github.com/alexmurray/clang-analyzer/'."
   :error-patterns ((info line-start (file-name) ":" line ":" column
                             ": note: " (optional (message))
                             line-end)
-		   (warning line-start (file-name) ":" line ":" column
-			    ": warning: " (optional (message))
-			    line-end)
-		   (error line-start (file-name) ":" line ":" column
-			  ": error: " (optional (message))
-			  line-end))
+                   (warning line-start (file-name) ":" line ":" column
+                            ": warning: " (optional (message))
+                            line-end)
+                   (error line-start (file-name) ":" line ":" column
+                          ": error: " (optional (message))
+                          line-end))
   :error-filter
   (lambda (errors)
     (let ((errors (flycheck-sanitize-errors errors)))
