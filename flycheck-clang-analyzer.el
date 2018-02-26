@@ -88,7 +88,12 @@
 (defun flycheck-clang-analyzer--cquery-get-compile-options ()
   "Get compile options from cquery."
   (if (fboundp 'cquery-file-info)
-      (cl-rest (gethash "args" (cquery-file-info)))))
+      (let ((args (gethash "args" (cquery-file-info))))
+        ;; sometimes is the first element is the executable name (ie cc etc)
+        ;; but sometimes not...
+        (if (executable-find (car args))
+            (cdr args)
+          args))))
 
 (defun flycheck-clang-analyzer--cquery-get-default-directory ()
   "Get default directory from cquery."
