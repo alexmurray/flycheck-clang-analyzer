@@ -29,8 +29,9 @@
 ;; flycheck to automatically detect any new defects in your code on the fly.
 ;;
 ;; It depends on and leverages either the existing c/c++-clang flycheck
-;; backend, or `emacs-cquery' `irony-mode' or `rtags' to provide compilation
-;; arguments etc and so provides automatic static analysis with zero setup.
+;; backend, or `emacs-cquery', `emacs-ccls' `irony-mode' or `rtags' to provide
+;; compilation arguments etc and so provides automatic static analysis with
+;; zero setup.
 ;;
 ;; Automatically chains itself as the next checker after c/c++-clang, lsp-ui,
 ;; irony and rtags flycheck checkers.
@@ -50,6 +51,10 @@
      (:active . flycheck-clang-analyzer--cquery-active)
      (:get-compile-options . flycheck-clang-analyzer--cquery-get-compile-options)
      (:get-default-directory . flycheck-clang-analyzer--cquery-get-default-directory))
+    ((:name . ccls)
+     (:active . flycheck-clang-analyzer--ccls-active)
+     (:get-compile-options . flycheck-clang-analyzer--ccls-get-compile-options)
+     (:get-default-directory . flycheck-clang-analyzer--ccls-get-default-directory))
     ((:name . irony)
      (:active . flycheck-clang-analyzer--irony-active)
      (:get-compile-options . flycheck-clang-analyzer--irony-get-compile-options)
@@ -99,6 +104,26 @@
   "Get default directory from cquery."
   (if (fboundp 'cquery--get-root)
       (cquery--get-root)))
+
+;; ccls
+(defun flycheck-clang-analyzer--ccls-active ()
+  "Check if 'ccls-mode' is available and active."
+  (and (fboundp 'ccls--is-ccls-buffer) (ccls--is-ccls-buffer)))
+
+(defun flycheck-clang-analyzer--ccls-get-compile-options ()
+  "Get compile options from ccls."
+  (if (fboundp 'ccls-file-info)
+      (let ((args (gethash "args" (ccls-file-info))))
+        ;; sometimes is the first element is the executable name (ie cc etc)
+        ;; but sometimes not...
+        (if (executable-find (car args))
+            (cdr args)
+          args))))
+
+(defun flycheck-clang-analyzer--ccls-get-default-directory ()
+  "Get default directory from ccls."
+  (if (fboundp 'ccls--get-root)
+      (ccls--get-root)))
 
 ;; irony
 (defun flycheck-clang-analyzer--irony-active ()
