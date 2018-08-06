@@ -85,6 +85,20 @@
   (and (not (flycheck-clang-analyzer--buffer-is-header))
        (flycheck-clang-analyzer--backend)))
 
+(defun flycheck-clang-analyzer--filter-compile-options (options)
+  "Filter OPTIONS to remove -o <outputfile>."
+  (let ((prev-o nil))
+    (cl-remove-if #'(lambda (option)
+                      (let ((ret nil))
+                        (if (string= "-o" option)
+                            ;; this will also return t to remove -o
+                            (setq prev-o t
+                                  ret t)
+                          (setq ret prev-o)
+                          (setq prev-o nil))
+                        ret))
+                  options)))
+
 ;; cquery
 (defun flycheck-clang-analyzer--cquery-active ()
   "Check if 'cquery-mode' is available and active."
@@ -94,11 +108,12 @@
   "Get compile options from cquery."
   (if (fboundp 'cquery-file-info)
       (let ((args (gethash "args" (cquery-file-info))))
-        ;; sometimes is the first element is the executable name (ie cc etc)
-        ;; but sometimes not...
-        (if (executable-find (car args))
-            (cdr args)
-          args))))
+        (flycheck-clang-analyzer--filter-compile-options
+         ;; sometimes is the first element is the executable name (ie cc etc)
+         ;; but sometimes not...
+         (if (executable-find (car args))
+             (cdr args)
+           args)))))
 
 (defun flycheck-clang-analyzer--cquery-get-default-directory ()
   "Get default directory from cquery."
@@ -114,11 +129,12 @@
   "Get compile options from ccls."
   (if (fboundp 'ccls-file-info)
       (let ((args (gethash "args" (ccls-file-info))))
-        ;; sometimes is the first element is the executable name (ie cc etc)
-        ;; but sometimes not...
-        (if (executable-find (car args))
-            (cdr args)
-          args))))
+        (flycheck-clang-analyzer--filter-compile-options
+         ;; sometimes is the first element is the executable name (ie cc etc)
+         ;; but sometimes not...
+         (if (executable-find (car args))
+             (cdr args)
+           args)))))
 
 (defun flycheck-clang-analyzer--ccls-get-default-directory ()
   "Get default directory from ccls."
