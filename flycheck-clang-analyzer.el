@@ -5,7 +5,7 @@
 ;; Author: Alex Murray <murray.alex@gmail.com>
 ;; Maintainer: Alex Murray <murray.alex@gmail.com>
 ;; URL: https://github.com/alexmurray/flycheck-clang-analyzer
-;; Version: 0.3
+;; Version: 0.4
 ;; Package-Requires: ((flycheck "0.24") (emacs "24.4"))
 
 ;; This file is not part of GNU Emacs.
