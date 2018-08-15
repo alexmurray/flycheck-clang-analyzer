@@ -11,14 +11,18 @@ perform on-the-fly static analysis *as you code*.
 ![flycheck-clang-analyzer screenshot](screenshots/flycheck-clang-analyzer.png)
 
 This package leverages the configuration of the existing `c/c++-clang` flycheck
-checker, or either [emacs-cquery](https://github.com/cquery-project/emacs-cquery), [irony-mode](https://github.com/Sarcasm/irony-mode/)
-or [rtags](https://github.com/Andersbakken/rtags) to provide the appropriate
+checker, or either
+[emacs-cquery](https://github.com/cquery-project/emacs-cquery),
+[emacs-ccls](https://github.com/MaskRay/emacs-ccls),
+[irony-mode](https://github.com/Sarcasm/irony-mode/) or
+[rtags](https://github.com/Andersbakken/rtags) to provide the appropriate
 compiler flags for clang - and so requires zero extra setup. This checker also
-automatically chains itself as the next `flycheck` checker after
-`c/c++-clang`, [lsp-ui](https://github.com/emacs-lsp/lsp-ui) [flycheck-irony](https://github.com/Sarcasm/flycheck-irony/)
-and [flycheck-rtags](https://github.com/Andersbakken/rtags) so that it only
-runs when the corresponding previous checker returns without warnings. This
-avoids trying to perform the analysis when there are syntactic errors etc.
+automatically chains itself as the next `flycheck` checker after `c/c++-clang`,
+[lsp-ui](https://github.com/emacs-lsp/lsp-ui)
+[flycheck-irony](https://github.com/Sarcasm/flycheck-irony/) and
+[flycheck-rtags](https://github.com/Andersbakken/rtags) so that it only runs
+when the corresponding previous checker returns without warnings. This avoids
+trying to perform the analysis when there are syntactic errors etc.
 
 ## Installation
 
