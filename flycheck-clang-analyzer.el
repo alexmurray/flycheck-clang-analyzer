@@ -85,20 +85,6 @@
   (and (not (flycheck-clang-analyzer--buffer-is-header))
        (flycheck-clang-analyzer--backend)))
 
-(defun flycheck-clang-analyzer--filter-compile-options (options)
-  "Filter OPTIONS to remove -o <outputfile>."
-  (let ((prev-o nil))
-    (cl-remove-if #'(lambda (option)
-                      (let ((ret nil))
-                        (if (string= "-o" option)
-                            ;; this will also return t to remove -o
-                            (setq prev-o t
-                                  ret t)
-                          (setq ret prev-o)
-                          (setq prev-o nil))
-                        ret))
-                  options)))
-
 ;; cquery
 (defun flycheck-clang-analyzer--cquery-active ()
   "Check if 'cquery-mode' is available and active."
@@ -107,13 +93,7 @@
 (defun flycheck-clang-analyzer--cquery-get-compile-options ()
   "Get compile options from cquery."
   (if (fboundp 'cquery-file-info)
-      (let ((args (gethash "args" (cquery-file-info))))
-        (flycheck-clang-analyzer--filter-compile-options
-         ;; sometimes is the first element is the executable name (ie cc etc)
-         ;; but sometimes not...
-         (if (executable-find (car args))
-             (cdr args)
-           args)))))
+      (gethash "args" (cquery-file-info))))
 
 (defun flycheck-clang-analyzer--cquery-get-default-directory ()
   "Get default directory from cquery."
@@ -128,13 +108,7 @@
 (defun flycheck-clang-analyzer--ccls-get-compile-options ()
   "Get compile options from ccls."
   (if (fboundp 'ccls-file-info)
-      (let ((args (gethash "args" (ccls-file-info))))
-        (flycheck-clang-analyzer--filter-compile-options
-         ;; sometimes is the first element is the executable name (ie cc etc)
-         ;; but sometimes not...
-         (if (executable-find (car args))
-             (cdr args)
-           args)))))
+      (gethash "args" (ccls-file-info))))
 
 (defun flycheck-clang-analyzer--ccls-get-default-directory ()
   "Get default directory from ccls."
@@ -164,17 +138,10 @@
        (fboundp 'rtags-is-running)
        (rtags-is-running)))
 
-(defun flycheck-clang-analyzer--valid-compilation-flag-p (flag)
-  "Check whether FLAG is a valid compilation flag for clang --analyze."
-  (and (string= (substring flag 0 1) "-")
-       (not (string= flag "-o"))
-       (not (string= flag "-c"))))
-
 (defun flycheck-clang-analyzer--rtags-get-compile-options ()
   "Get compile options from rtags."
   (if (fboundp 'rtags-compilation-flags)
-      (cl-remove-if-not #'flycheck-clang-analyzer--valid-compilation-flag-p
-                        (rtags-compilation-flags))))
+      (rtags-compilation-flags)))
 
 (defun flycheck-clang-analyzer--rtags-get-default-directory ()
   "Get default directory from rtags."
@@ -225,13 +192,29 @@
                               "No active supported backend."))
       :face (if backend 'success '(bold error))))))
 
+(defun flycheck-clang-analyzer--filter-compile-options (options)
+  "Filter OPTIONS to remove options which conflict with the clang static analyzer."
+  (let ((remove-next nil))
+    (cl-remove-if #'(lambda (option)
+                      ;; remove any instance of the source file itself or -c
+                      ;; which is not relevant for analysis and the name of the
+                      ;; compiler itself since rtags likes to return this
+                      (or (and remove-next (progn (setq remove-next nil) t))
+                          (string= (expand-file-name buffer-file-name) option)
+                          (string= "-c" option)
+                          (executable-find option)
+                          (and (string= "-o" option)
+                               (setq remove-next t))))
+                  options)))
+
 (flycheck-define-checker clang-analyzer
   "A checker using clang-analyzer.
 
 See `https://github.com/alexmurray/clang-analyzer/'."
   :command ("clang"
             "--analyze"
-            (eval (flycheck-clang-analyzer--get-compile-options))
+            (eval (flycheck-clang-analyzer--filter-compile-options
+                   (flycheck-clang-analyzer--get-compile-options)))
             ;; disable after compdb options to ensure stay disabled
             "-fno-color-diagnostics" ; don't include color in output
             "-fno-caret-diagnostics" ; don't indicate location in output
@@ -241,10 +224,7 @@ See `https://github.com/alexmurray/clang-analyzer/'."
   :predicate flycheck-clang-analyzer--predicate
   :working-directory flycheck-clang-analyzer--get-default-directory
   :verify flycheck-clang-analyzer--verify
-  :error-patterns ((info line-start (file-name) ":" line ":" column
-                            ": note: " (optional (message))
-                            line-end)
-                   (warning line-start (file-name) ":" line ":" column
+  :error-patterns ((warning line-start (file-name) ":" line ":" column
                             ": warning: " (optional (message))
                             line-end)
                    (error line-start (file-name) ":" line ":" column
