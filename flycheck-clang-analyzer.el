@@ -136,7 +136,8 @@
   (and (boundp 'rtags-enabled)
        rtags-enabled
        (fboundp 'rtags-is-running)
-       (rtags-is-running)))
+       (rtags-is-running)
+       (> (length (rtags-compilation-flags)) 0)))
 
 (defun flycheck-clang-analyzer--rtags-get-compile-options ()
   "Get compile options from rtags."
