@@ -204,6 +204,8 @@
                       (or (and remove-next (progn (setq remove-next nil) t))
                           (string= (expand-file-name buffer-file-name) option)
                           (string= "-c" option)
+                          (string-prefix-p "-m" option)
+                          (string-prefix-p "-f" option)
                           (executable-find option)
                           (and (string= "-o" option)
                                (setq remove-next t))))
