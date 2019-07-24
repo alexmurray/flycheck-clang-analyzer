@@ -103,12 +103,13 @@
 ;; ccls
 (defun flycheck-clang-analyzer--ccls-active ()
   "Check if 'ccls-mode' is available and active."
-  (and (fboundp 'ccls--is-ccls-buffer) (ccls--is-ccls-buffer)))
+  (and (fboundp 'ccls-file-info) (ccls-file-info)))
 
 (defun flycheck-clang-analyzer--ccls-get-compile-options ()
   "Get compile options from ccls."
   (if (fboundp 'ccls-file-info)
-      (gethash "args" (ccls-file-info))))
+      ;; needs to be a list not a vector
+      (append (gethash "args" (ccls-file-info)) nil)))
 
 (defun flycheck-clang-analyzer--ccls-get-default-directory ()
   "Get default directory from ccls."
