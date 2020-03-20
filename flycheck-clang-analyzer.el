@@ -254,14 +254,14 @@ Add `clang-analyzer' to `flycheck-checkers'."
   (interactive)
   ;; append to list and chain after existing checkers
   (add-to-list 'flycheck-checkers 'clang-analyzer t)
-  (with-eval-after-load 'lsp-ui-flycheck
-    (flycheck-add-next-checker 'lsp-ui '(warning . clang-analyzer)))
-  (with-eval-after-load 'flycheck-irony
-    (flycheck-add-next-checker 'irony '(warning . clang-analyzer)))
-  (with-eval-after-load 'flycheck-rtags
-    (flycheck-add-next-checker 'rtags '(warning . clang-analyzer)))
-  (with-eval-after-load 'flycheck
-    (flycheck-add-next-checker 'c/c++-clang '(warning . clang-analyzer))))
+  (dolist (feature-checker '((lsp-mode . lsp)
+                             (lsp-ui-flycheck . lsp-ui)
+                             (flycheck-irony . irony)
+                             (flycheck-rtags . rtags)
+                             (flycheck . c/c++-clang)))
+    (with-eval-after-load (car feature-checker)
+      (when (flycheck-valid-checker-p (cdr feature-checker))
+        (flycheck-add-next-checker (cdr feature-checker) '(warning . clang-analyzer))))))
 
 (provide 'flycheck-clang-analyzer)
 
