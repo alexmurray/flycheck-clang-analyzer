@@ -138,6 +138,7 @@
        rtags-enabled
        (fboundp 'rtags-is-running)
        (rtags-is-running)
+       (fboundp 'rtags-compilation-flags)
        (> (length (rtags-compilation-flags)) 0)))
 
 (defun flycheck-clang-analyzer--rtags-get-compile-options ()
