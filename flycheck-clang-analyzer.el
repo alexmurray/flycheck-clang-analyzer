@@ -1,11 +1,11 @@
-;;; flycheck-clang-analyzer.el --- Integrate Clang Analyzer with flycheck
+;;; flycheck-clang-analyzer.el --- Integrate Clang Analyzer with flycheck     -*- lexical-binding: t; -*-
 
 ;; Copyright (c) 2017 Alex Murray
 
 ;; Author: Alex Murray <murray.alex@gmail.com>
 ;; Maintainer: Alex Murray <murray.alex@gmail.com>
 ;; URL: https://github.com/alexmurray/flycheck-clang-analyzer
-;; Version: 0.7
+;; Version: 0.8
 ;; Package-Requires: ((flycheck "0.24") (emacs "24.4"))
 
 ;; This file is not part of GNU Emacs.
