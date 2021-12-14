@@ -215,7 +215,7 @@
 (flycheck-define-checker clang-analyzer
   "A checker using clang-analyzer.
 
-See `https://github.com/alexmurray/clang-analyzer/'."
+See `https://clang-analyzer.llvm.org/'."
   :command ("clang"
             "--analyze"
             (eval (flycheck-clang-analyzer--filter-compile-options
@@ -256,7 +256,7 @@ Add `clang-analyzer' to `flycheck-checkers'."
   ;; append to list and chain after existing checkers
   (add-to-list 'flycheck-checkers 'clang-analyzer t)
   (dolist (feature-checker '((lsp-mode . lsp)
-                             (lsp-ui-flycheck . lsp-ui)
+                             (lsp-ui . lsp-ui)
                              (flycheck-irony . irony)
                              (flycheck-rtags . rtags)
                              (flycheck . c/c++-clang)))
